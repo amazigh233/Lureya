@@ -1,0 +1,364 @@
+@page "/"
+@inject ProductService Products
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>Lureya — Hijabs & Abayas</PageTitle>
+
+<!-- ── Hero ─────────────────────────────────────────── -->
+<section class="hero">
+
+    <!-- Left: typography column -->
+    <div class="hero-left">
+        <span class="hero-eyebrow">Nieuwe Collectie 2026</span>
+
+        <h1 class="hero-title">
+            Elegantie<br/>
+            <i>met ziel</i>
+        </h1>
+
+        <p class="hero-desc">
+            Zorgvuldig ontworpen hijabs en abayas voor de vrouw
+            die bescheidenheid en stijl in perfecte harmonie draagt.
+        </p>
+
+        <div class="hero-cta">
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/shop")'>
+                Ontdek de collectie
+            </button>
+            <button class="btn-ghost" @onclick='() => Nav.NavigateTo("/shop/abaya")'>
+                Abayas bekijken <i class="fas fa-arrow-right" style="font-size:.65rem"></i>
+            </button>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <div class="stat-val">500+</div>
+                <div class="stat-lbl">Producten</div>
+            </div>
+            <div>
+                <div class="stat-val">12k+</div>
+                <div class="stat-lbl">Klanten</div>
+            </div>
+            <div>
+                <div class="stat-val">98%</div>
+                <div class="stat-lbl">Tevreden</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: CSS decoratieve monogram -->
+    <div class="hero-right">
+        <div class="hero-monogram">
+            <div class="hero-ring-outer"></div>
+            <div class="hero-ring-mid"></div>
+            <span class="hero-letter">L</span>
+        </div>
+        <div class="hero-tagline">
+            <p>Handgemaakt · Duurzaam · Exclusief</p>
+        </div>
+    </div>
+
+    <div class="hero-scroll">
+        <span>Scroll</span>
+        <span class="scroll-line"></span>
+    </div>
+</section>
+
+<!-- ── Marquee ───────────────────────────────────────── -->
+<div class="marquee-wrap">
+    <div class="marquee-track">
+        @for (int i = 0; i < 6; i++)
+        {
+            <span class="marquee-item">Luxueuze Hijabs</span>
+            <span class="marquee-dot">◆</span>
+            <span class="marquee-item">Elegante Abayas</span>
+            <span class="marquee-dot">◆</span>
+            <span class="marquee-item">Bruidscollectie</span>
+            <span class="marquee-dot">◆</span>
+            <span class="marquee-item">Nieuw Seizoen 2026</span>
+            <span class="marquee-dot">◆</span>
+            <span class="marquee-item">Premium Stoffen</span>
+            <span class="marquee-dot">◆</span>
+            <span class="marquee-item">Handgemaakt</span>
+            <span class="marquee-dot">◆</span>
+        }
+    </div>
+</div>
+
+<!-- ── Categories ────────────────────────────────────── -->
+<section class="section section--white">
+    <div class="container">
+        <div class="section-header">
+            <span class="label label-gold">Onze Collecties</span>
+            <span class="thin-line thin-line--center"></span>
+            <h2 class="section-title">Shop per <i>categorie</i></h2>
+        </div>
+
+        <div class="cat-grid">
+            <!-- Tall card: Abayas -->
+            <div class="cat-card cat-card--tall" @onclick='() => Nav.NavigateTo("/shop/abaya")'>
+                <div class="cat-bg" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop&q=80')"></div>
+                <div class="cat-info">
+                    <p class="cat-lbl">Collectie</p>
+                    <h3 class="cat-name">Abayas</h3>
+                    <span class="cat-arrow">Bekijk alles <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Hijabs -->
+            <div class="cat-card" @onclick='() => Nav.NavigateTo("/shop/hijab")'>
+                <div class="cat-bg" style="background-image:url('https://images.unsplash.com/photo-1594938298603-c8148c4b4869?w=600&auto=format&fit=crop&q=80')"></div>
+                <div class="cat-info">
+                    <p class="cat-lbl">Collectie</p>
+                    <h3 class="cat-name">Hijabs</h3>
+                    <span class="cat-arrow">Bekijk alles <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Bridal -->
+            <div class="cat-card" @onclick='() => Nav.NavigateTo("/shop")'>
+                <div class="cat-bg" style="background-image:url('https://images.unsplash.com/photo-1583500178690-594ce8aa3a6e?w=600&auto=format&fit=crop&q=80')"></div>
+                <div class="cat-info">
+                    <p class="cat-lbl">Exclusief</p>
+                    <h3 class="cat-name">Bruids</h3>
+                    <span class="cat-arrow">Bekijk alles <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Nieuw -->
+            <div class="cat-card" @onclick='() => Nav.NavigateTo("/shop")'>
+                <div class="cat-bg" style="background-image:url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&auto=format&fit=crop&q=80')"></div>
+                <div class="cat-info">
+                    <p class="cat-lbl">Nieuw 2026</p>
+                    <h3 class="cat-name">Nieuw</h3>
+                    <span class="cat-arrow">Bekijk alles <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Feature Bar ───────────────────────────────────── -->
+<div style="background:var(--light)">
+    <div class="feature-bar">
+        <div class="ftr">
+            <div class="ftr-icon"><i class="fas fa-truck"></i></div>
+            <div class="ftr-title">Gratis Verzending</div>
+            <p class="ftr-desc">Vanaf €75 in Nederland</p>
+        </div>
+        <div class="ftr">
+            <div class="ftr-icon"><i class="fas fa-gem"></i></div>
+            <div class="ftr-title">Premium Kwaliteit</div>
+            <p class="ftr-desc">Zorgvuldig geselecteerde stoffen</p>
+        </div>
+        <div class="ftr">
+            <div class="ftr-icon"><i class="fas fa-undo"></i></div>
+            <div class="ftr-title">30 Dagen Retour</div>
+            <p class="ftr-desc">Eenvoudig en gratis retourneren</p>
+        </div>
+        <div class="ftr">
+            <div class="ftr-icon"><i class="fas fa-lock"></i></div>
+            <div class="ftr-title">Veilig Betalen</div>
+            <p class="ftr-desc">iDEAL, Klarna & meer</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── Featured Products ─────────────────────────────── -->
+<section class="section section--white">
+    <div class="container">
+        <div class="section-header">
+            <span class="label label-gold">Uitgelicht</span>
+            <span class="thin-line thin-line--center"></span>
+            <h2 class="section-title">Meest <i>geliefd</i></h2>
+            <p class="section-sub">Onze bestsellers — geliefd door duizenden vrouwen in heel Nederland</p>
+        </div>
+
+        <div class="products-grid">
+            @foreach (var product in _featured)
+            {
+                var p = product;
+                <div class="product-card" @onclick='() => Nav.NavigateTo($"/product/{p.Id}")'>
+                    <div class="product-img-wrap">
+                        <div class="product-img-bg" style="background-image:url('@p.ImageUrl')"></div>
+                        @if (!string.IsNullOrEmpty(p.Badge))
+                        {
+                            <div class="product-badge-wrap">
+                                <span class="badge @(p.Badge == "Sale" ? "badge-sale" : "badge-new")">@p.Badge</span>
+                            </div>
+                        }
+                        <div class="product-quickbtns" @onclick:stopPropagation="true">
+                            <button class="qbtn" title="Snel bekijken" @onclick='() => Nav.NavigateTo($"/product/{p.Id}")'>
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="qbtn" title="Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="qbtn" title="In winkelwagen" @onclick="() => AddToCart(p)">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <p class="product-cat">@p.Category</p>
+                        <h4 class="product-name">@p.Name</h4>
+                        <div class="product-pricing">
+                            <span class="product-price">€@p.Price.ToString("0.00")</span>
+                            @if (p.OldPrice.HasValue)
+                            {
+                                <span class="product-price-old">€@p.OldPrice.Value.ToString("0.00")</span>
+                            }
+                        </div>
+                        <div class="color-dots">
+                            @foreach (var color in p.Colors.Take(4))
+                            {
+                                <span class="c-dot" style="background:@color"></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div style="text-align:center;margin-top:3rem">
+            <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/shop")'>
+                Alle producten bekijken <i class="fas fa-arrow-right" style="font-size:.6rem;margin-left:.3rem"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ── Story / Split ─────────────────────────────────── -->
+<div class="split-grid">
+    <div class="split-visual">
+        <div class="split-bg" style="background-image:url('https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=900&auto=format&fit=crop&q=80')"></div>
+    </div>
+    <div class="split-text">
+        <span class="label label-gold">Ons Verhaal</span>
+        <span class="thin-line"></span>
+        <h2 class="section-title" style="text-align:left">Gedreven door <i>passie</i></h2>
+        <p style="margin-top:1.5rem">
+            Lureya werd geboren vanuit een diepe liefde voor schoonheid en bescheidenheid.
+            Wij geloven dat elke vrouw het recht heeft om zichzelf te uiten op een elegante,
+            zelfverzekerde manier.
+        </p>
+        <p>
+            Elke stof wordt zorgvuldig geselecteerd, elk stuk ontworpen met aandacht voor detail.
+            Van onze ateliers tot aan jouw deur — kwaliteit is nooit een compromis.
+        </p>
+        <div class="values-list">
+            <div class="vitem"><i class="fas fa-leaf"></i><span>Duurzame productie & bewuste materiaalkeuze</span></div>
+            <div class="vitem"><i class="fas fa-heart"></i><span>Elk detail met liefde afgewerkt</span></div>
+            <div class="vitem"><i class="fas fa-star"></i><span>Premium stoffen, luxe gevoel</span></div>
+        </div>
+        <div style="margin-top:2.5rem">
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/shop")'>
+                Ontdek Lureya
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Testimonials ──────────────────────────────────── -->
+<section class="section section--light">
+    <div class="container">
+        <div class="section-header">
+            <span class="label label-gold">Beoordelingen</span>
+            <span class="thin-line thin-line--center"></span>
+            <h2 class="section-title">Wat klanten <i>zeggen</i></h2>
+        </div>
+
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="review-text">"De kwaliteit van de chiffon hijab is echt adembenemend. Vloeit perfect en is zo comfortabel om te dragen. Ga zeker meer bestellen!"</p>
+                <div class="review-author">
+                    <div class="author-init">F</div>
+                    <div>
+                        <div class="author-name">Fatima Al-Hassan</div>
+                        <div class="author-city">Amsterdam</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="review-text">"Mijn geborduurde abaya was perfect voor de bruiloft. Iedereen vroeg waar ik het vandaan had. Lureya is echt van een andere klasse!"</p>
+                <div class="review-author">
+                    <div class="author-init">A</div>
+                    <div>
+                        <div class="author-name">Aisha Benali</div>
+                        <div class="author-city">Rotterdam</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </div>
+                <p class="review-text">"Snelle levering, prachtige verpakking en de jersey hijab is al weken mijn dagelijkse go-to. Geweldige service!"</p>
+                <div class="review-author">
+                    <div class="author-init">S</div>
+                    <div>
+                        <div class="author-name">Sara Oussama</div>
+                        <div class="author-city">Den Haag</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Newsletter ────────────────────────────────────── -->
+<section class="section section--dark">
+    <div class="container">
+        <div class="nl-wrap">
+            <span class="label" style="color:var(--gold-light)">Nieuwsbrief</span>
+            <div style="width:40px;height:1px;background:var(--gold);margin:1.25rem auto"></div>
+            <h2 class="section-title" style="color:var(--white)">Blijf op de <i style="color:var(--gold-light)">hoogte</i></h2>
+            <p class="section-sub" style="color:rgba(255,255,255,.45)">
+                Schrijf je in en ontvang 10% korting op je eerste bestelling,
+                plus exclusieve toegang tot nieuwe collecties.
+            </p>
+            <div class="nl-form">
+                <input class="nl-input" type="email" placeholder="Jouw e-mailadres" @bind="_email" />
+                <button class="nl-btn" @onclick="Subscribe">Inschrijven</button>
+            </div>
+            @if (_subscribed)
+            {
+                <p class="nl-success"><i class="fas fa-check"></i> Bedankt! Controleer je inbox voor je kortingscode.</p>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<Product> _featured = new();
+    private string _email = "";
+    private bool _subscribed = false;
+
+    protected override void OnInitialized()
+    {
+        _featured = Products.GetFeatured();
+    }
+
+    private void AddToCart(Product p)
+    {
+        Cart.AddToCart(p);
+    }
+
+    private void Subscribe()
+    {
+        if (!string.IsNullOrWhiteSpace(_email))
+            _subscribed = true;
+    }
+}

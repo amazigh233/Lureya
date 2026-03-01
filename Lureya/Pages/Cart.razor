@@ -1,0 +1,169 @@
+@page "/cart"
+@inject CartService CartSvc
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Winkelwagen – Lureya</PageTitle>
+
+<div class="page-header">
+    <div class="breadcrumb" style="justify-content:center;">
+        <a @onclick='() => Nav.NavigateTo("/")'>Home</a>
+        <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+        <span>Winkelwagen</span>
+    </div>
+    <h1>Winkelwagen</h1>
+    <p>@CartSvc.TotalCount artikel(en)</p>
+</div>
+
+<section class="section">
+    <div class="container">
+        @if (!CartSvc.Items.Any())
+        {
+            <div class="empty-cart">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Je winkelwagen is leeg</h3>
+                <p>Voeg producten toe aan je winkelwagen en ze verschijnen hier.</p>
+                <button class="btn-primary" @onclick='() => Nav.NavigateTo("/shop")'>
+                    <i class="fas fa-store"></i> Naar de winkel
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="cart-layout">
+                <!-- Items -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+                        <h3 style="font-family:'Cormorant Garamond',serif;font-weight:300;">Jouw artikelen</h3>
+                        <button class="btn-ghost" @onclick="CartSvc.Clear">
+                            <i class="fas fa-trash-alt"></i> Leegmaken
+                        </button>
+                    </div>
+                    <div class="cart-items">
+                        @foreach (var item in CartSvc.Items.ToList())
+                        {
+                            <div class="cart-item">
+                                <div class="ci-img" style="background-image:url('@item.Product.ImageUrl')"></div>
+                                <div class="ci-details">
+                                    <p class="ci-cat">@item.Product.Category</p>
+                                    <p class="ci-name">@item.Product.Name</p>
+                                    @if (!string.IsNullOrEmpty(item.SelectedSize) || !string.IsNullOrEmpty(item.SelectedColor))
+                                    {
+                                        <p class="ci-variant">
+                                            @if (!string.IsNullOrEmpty(item.SelectedSize)) { <span>Maat: @item.SelectedSize</span> }
+                                        </p>
+                                    }
+                                    <div class="qty-ctrl">
+                                        <button class="qty-btn" @onclick="() => CartSvc.UpdateQuantity(item, -1)"><i class="fas fa-minus"></i></button>
+                                        <span class="qty-num">@item.Quantity</span>
+                                        <button class="qty-btn" @onclick="() => CartSvc.UpdateQuantity(item, 1)"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ci-price-col">
+                                    <span class="ci-price">€@item.LineTotal.ToString("0.00")</span>
+                                    <button class="ci-remove" @onclick="() => CartSvc.RemoveFromCart(item)" title="Verwijderen">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div style="margin-top:2rem;">
+                        <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/shop")'>
+                            <i class="fas fa-arrow-left"></i> Verder winkelen
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="cart-summary-box">
+                    <h3 class="cs-title">Overzicht</h3>
+
+                    <div class="cs-row">
+                        <span>Subtotaal</span>
+                        <span>€@CartSvc.Subtotal.ToString("0.00")</span>
+                    </div>
+                    <div class="cs-row">
+                        <span>Verzending</span>
+                        <span>@(CartSvc.Shipping == 0 ? "Gratis" : $"€{CartSvc.Shipping:0.00}")</span>
+                    </div>
+                    @if (CartSvc.Shipping > 0)
+                    {
+                        <p style="font-size:.75rem;color:var(--gold-dark);margin:.25rem 0;">
+                            Nog €@((75 - CartSvc.Subtotal).ToString("0.00")) tot gratis verzending
+                        </p>
+                    }
+
+                    <div class="promo-row">
+                        <input class="promo-input" type="text" placeholder="Kortingscode" @bind="_promo" />
+                        <button class="promo-btn" @onclick="ApplyPromo">Toepassen</button>
+                    </div>
+                    @if (_promoApplied)
+                    {
+                        <div class="cs-row" style="color:var(--gold-dark);">
+                            <span>Korting (LUREYA10)</span>
+                            <span>- €@_discount.ToString("0.00")</span>
+                        </div>
+                    }
+
+                    <div class="cs-row total">
+                        <span>Totaal</span>
+                        <span>€@((CartSvc.Total - _discount).ToString("0.00"))</span>
+                    </div>
+
+                    <button class="btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;" @onclick="Checkout">
+                        <i class="fas fa-lock"></i> Veilig afrekenen
+                    </button>
+
+                    <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1rem;">
+                        <i class="fas fa-shield-alt" style="color:var(--text-light);font-size:.8rem;"></i>
+                        <span style="font-size:.72rem;color:var(--text-light);">SSL-beveiligde betaling</span>
+                    </div>
+
+                    <!-- Payment icons -->
+                    <div style="display:flex;gap:.5rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap;">
+                        <span style="font-size:.68rem;color:var(--text-light);padding:.3rem .6rem;border:1px solid var(--border);border-radius:2px;">iDEAL</span>
+                        <span style="font-size:.68rem;color:var(--text-light);padding:.3rem .6rem;border:1px solid var(--border);border-radius:2px;">Klarna</span>
+                        <span style="font-size:.68rem;color:var(--text-light);padding:.3rem .6rem;border:1px solid var(--border);border-radius:2px;">Afterpay</span>
+                        <span style="font-size:.68rem;color:var(--text-light);padding:.3rem .6rem;border:1px solid var(--border);border-radius:2px;">Visa</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private string _promo = "";
+    private bool _promoApplied = false;
+    private decimal _discount = 0;
+
+    protected override void OnInitialized()
+    {
+        CartSvc.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CartSvc.OnChange -= StateHasChanged;
+    }
+
+    private void ApplyPromo()
+    {
+        if (_promo.Trim().Equals("LUREYA10", StringComparison.OrdinalIgnoreCase))
+        {
+            _discount = Math.Round(CartSvc.Subtotal * 0.10m, 2);
+            _promoApplied = true;
+        }
+    }
+
+    private void Checkout()
+    {
+        // In a real app this would navigate to a checkout flow
+        Nav.NavigateTo("/");
+    }
+}
+
+
+

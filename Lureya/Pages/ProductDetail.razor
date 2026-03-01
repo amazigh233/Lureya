@@ -1,0 +1,206 @@
+@page "/product/{Id:int}"
+@inject ProductService Products
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>@(_product?.Name ?? "Product") – Lureya</PageTitle>
+
+@if (_product == null)
+{
+    <div class="section" style="text-align:center;padding-top:10rem;">
+        <h2>Product niet gevonden</h2>
+        <button class="btn-primary" style="margin-top:1.5rem;" @onclick='() => Nav.NavigateTo("/shop")'>Terug naar winkel</button>
+    </div>
+}
+else
+{
+    <div style="padding-top:80px;">
+        <section class="section">
+            <div class="container">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a @onclick='() => Nav.NavigateTo("/")'>Home</a>
+                    <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                    <a @onclick='() => Nav.NavigateTo("/shop")'>Winkel</a>
+                    <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                    <a @onclick='() => Nav.NavigateTo($"/shop/{_product.Category.ToLower()}")'>@_product.Category</a>
+                    <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                    <span>@_product.Name</span>
+                </div>
+
+                <div class="detail-layout">
+                    <!-- Gallery -->
+                    <div>
+                        <div class="detail-gallery">
+                            <div class="gallery-main-bg" style="background-image:url('@_activeImage')"></div>
+                            @if (_product.GalleryImages.Count > 1)
+                            {
+                                <div class="gallery-thumbs">
+                                    @foreach (var img in _product.GalleryImages)
+                                    {
+                                        <div class="g-thumb @(_activeImage == img ? "active" : "")"
+                                             style="background-image:url('@img')"
+                                             @onclick="() => _activeImage = img">
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="detail-info">
+                        <p class="detail-cat">@_product.Category – @_product.SubCategory</p>
+                        <h1 class="detail-name">@_product.Name</h1>
+                        <div class="detail-rating">
+                            <div class="stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= (int)_product.Rating ? "fas" : "far") fa-star"></i>
+                                }
+                            </div>
+                            <span>@_product.Rating.ToString("0.0") (@_product.ReviewCount beoordelingen)</span>
+                        </div>
+                        <div class="detail-price">
+                            €@_product.Price.ToString("0.00")
+                            @if (_product.OldPrice.HasValue)
+                            {
+                                <span class="product-price-old" style="font-size:1.3rem;margin-left:.75rem;">€@_product.OldPrice.Value.ToString("0.00")</span>
+                            }
+                        </div>
+                        <p class="detail-desc">@_product.Description</p>
+
+                        <!-- Colors -->
+                        @if (_product.Colors.Any())
+                        {
+                            <p class="opt-label">Kleur</p>
+                            <div class="color-opts">
+                                @foreach (var color in _product.Colors)
+                                {
+                                    <div class="c-opt @(_selectedColor == color ? "active" : "")"
+                                         style="background:@color"
+                                         @onclick="() => _selectedColor = color">
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <!-- Sizes -->
+                        @if (_product.Sizes.Any())
+                        {
+                            <p class="opt-label">Maat</p>
+                            <div class="size-opts">
+                                @foreach (var size in _product.Sizes)
+                                {
+                                    <button class="s-btn @(_selectedSize == size ? "active" : "")"
+                                            @onclick="() => _selectedSize = size">@size</button>
+                                }
+                            </div>
+                        }
+
+                        <!-- Add to cart -->
+                        <div class="add-row">
+                            <div class="qty-ctrl">
+                                <button class="qty-btn" @onclick="DecQty"><i class="fas fa-minus"></i></button>
+                                <span class="qty-num">@_qty</span>
+                                <button class="qty-btn" @onclick="IncQty"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <button class="btn-primary" @onclick="AddToCart">
+                                <i class="fas fa-shopping-bag"></i> In winkelwagen
+                            </button>
+                            <button class="icon-btn" title="Wishlist" style="font-size:1.2rem;">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+
+                        @if (_added)
+                        {
+                            <p style="color:var(--gold-dark);font-size:.82rem;margin-bottom:.75rem;"><i class="fas fa-check-circle"></i> Toegevoegd aan winkelwagen</p>
+                        }
+
+                        <!-- Features -->
+                        <div class="det-features">
+                            <div class="det-feat"><i class="fas fa-tag"></i> Materiaal: @_product.Material</div>
+                            <div class="det-feat"><i class="fas fa-truck"></i> Gratis verzending vanaf €75</div>
+                            <div class="det-feat"><i class="fas fa-undo"></i> 30 dagen retourrecht</div>
+                            <div class="det-feat"><i class="fas fa-shield-alt"></i> 100% authenticiteit gegarandeerd</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related products -->
+        <section class="section section--light">
+            <div class="container">
+                <div class="section-header">
+                    <span class="label label-gold">Gerelateerd</span>
+                    <span class="thin-line thin-line--center"></span>
+                    <h2 class="section-title">Misschien ook <i>interessant</i></h2>
+                </div>
+                <div class="products-grid">
+                    @foreach (var p in _related)
+                    {
+                        <div class="product-card" @onclick='() => Nav.NavigateTo($"/product/{p.Id}")'>
+                            <div class="product-img-wrap">
+                                <div class="product-img-bg" style="background-image:url('@p.ImageUrl')"></div>
+                                @if (!string.IsNullOrEmpty(p.Badge))
+                                {
+                                    <div class="product-badge-wrap"><span class="badge @(p.Badge == "Sale" ? "badge-sale" : "badge-new")">@p.Badge</span></div>
+                                }
+                            </div>
+                            <div class="product-info">
+                                <p class="product-cat">@p.Category</p>
+                                <h4 class="product-name">@p.Name</h4>
+                                <div class="product-pricing">
+                                    <span class="product-price">€@p.Price.ToString("0.00")</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Product? _product;
+    private List<Product> _related = new();
+    private string _activeImage = "";
+    private string _selectedColor = "";
+    private string _selectedSize = "";
+    private int _qty = 1;
+    private bool _added = false;
+
+    protected override void OnParametersSet()
+    {
+        _product = Products.GetById(Id);
+        if (_product != null)
+        {
+            _activeImage = _product.GalleryImages.FirstOrDefault() ?? _product.ImageUrl;
+            _selectedColor = _product.Colors.FirstOrDefault() ?? "";
+            _selectedSize = _product.Sizes.FirstOrDefault() ?? "";
+            _related = Products.GetByCategory(_product.Category)
+                               .Where(p => p.Id != Id)
+                               .Take(4)
+                               .ToList();
+        }
+        _added = false;
+    }
+
+    private void IncQty() => _qty++;
+    private void DecQty() { if (_qty > 1) _qty--; }
+
+    private void AddToCart()
+    {
+        if (_product == null) return;
+        for (int i = 0; i < _qty; i++)
+            Cart.AddToCart(_product, _selectedColor, _selectedSize);
+        _added = true;
+    }
+}
+
+

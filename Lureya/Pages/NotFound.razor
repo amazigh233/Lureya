@@ -1,0 +1,15 @@
+﻿@page "/not-found"
+@layout MainLayout
+@inject NavigationManager Nav
+
+<PageTitle>Pagina niet gevonden – Lureya</PageTitle>
+
+<div style="text-align:center;padding:10rem 2rem 6rem;">
+    <p style="font-size:.72rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">404</p>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:4rem;margin-bottom:1rem;">Pagina niet gevonden</h1>
+    <span style="display:block;width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:1rem auto;"></span>
+    <p style="color:var(--text-light);margin-bottom:2.5rem;max-width:400px;margin-left:auto;margin-right:auto;">De pagina die je zoekt bestaat niet of is verplaatst. Ga terug naar de winkel en ontdek onze collectie.</p>
+    <button class="btn-primary" @onclick='() => Nav.NavigateTo("/")'>
+        <i class="fas fa-home"></i> Naar Homepage
+    </button>
+</div>

@@ -1,0 +1,81 @@
+﻿@inject NavigationManager Nav
+
+<nav class="navbar @(_scrolled ? "scrolled" : "")" id="mainNav">
+    <!-- Brand -->
+    <div class="navbar-brand" @onclick='() => Nav.NavigateTo("/")'>
+        <div class="logo-ring">L</div>
+        <span class="brand-name">LUREYA</span>
+    </div>
+
+    <!-- Desktop Nav -->
+    <div class="navbar-nav">
+        <button class="nav-link @(CurrentPage == "/" ? "active" : "")" @onclick='() => Nav.NavigateTo("/")'>Home</button>
+        <button class="nav-link @(CurrentPage.StartsWith("/shop") && !CurrentPage.Contains("hijab") && !CurrentPage.Contains("abaya") ? "active" : "")" @onclick='() => Nav.NavigateTo("/shop")'>Winkel</button>
+        <button class="nav-link @(CurrentPage.Contains("hijab") ? "active" : "")" @onclick='() => Nav.NavigateTo("/shop/hijab")'>Hijabs</button>
+        <button class="nav-link @(CurrentPage.Contains("abaya") ? "active" : "")" @onclick='() => Nav.NavigateTo("/shop/abaya")'>Abayas</button>
+        <button class="nav-link" @onclick='() => Nav.NavigateTo("/")'>Verhaal</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="navbar-actions">
+        <button class="icon-btn" title="Zoeken"><i class="fas fa-search"></i></button>
+        <button class="icon-btn" title="Wishlist"><i class="far fa-heart"></i></button>
+        <button class="icon-btn" title="Winkelwagen" @onclick='() => Nav.NavigateTo("/cart")'>
+            <i class="fas fa-shopping-bag"></i>
+            @if (CartCount > 0)
+            {
+                <span class="cart-badge">@CartCount</span>
+            }
+        </button>
+        <!-- Hamburger (mobile) -->
+        <button class="hamburger" @onclick="ToggleMobile">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Mobile overlay menu -->
+@if (_mobileOpen)
+{
+    <div style="position:fixed;inset:0;z-index:998;background:rgba(45,31,14,.6);" @onclick="ToggleMobile"></div>
+    <div style="position:fixed;top:0;right:0;width:280px;height:100vh;background:var(--white);z-index:999;padding:2rem;display:flex;flex-direction:column;gap:1.5rem;box-shadow:-10px 0 40px rgba(0,0,0,.08);">
+        <div style="display:flex;justify-content:flex-end;">
+            <button @onclick="ToggleMobile" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-mid)"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1.25rem;margin-top:1rem;">
+            <button class="nav-link" @onclick='() => { Nav.NavigateTo("/"); ToggleMobile(); }' style="font-size:.9rem;text-align:left;">Home</button>
+            <button class="nav-link" @onclick='() => { Nav.NavigateTo("/shop"); ToggleMobile(); }' style="font-size:.9rem;text-align:left;">Winkel</button>
+            <button class="nav-link" @onclick='() => { Nav.NavigateTo("/shop/hijab"); ToggleMobile(); }' style="font-size:.9rem;text-align:left;">Hijabs</button>
+            <button class="nav-link" @onclick='() => { Nav.NavigateTo("/shop/abaya"); ToggleMobile(); }' style="font-size:.9rem;text-align:left;">Abayas</button>
+            <button class="nav-link" @onclick='() => { Nav.NavigateTo("/cart"); ToggleMobile(); }' style="font-size:.9rem;text-align:left;">Winkelwagen (@CartCount)</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int CartCount { get; set; }
+
+    private bool _scrolled = false;
+    private bool _mobileOpen = false;
+
+    private string CurrentPage => Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/') is "" ? "/" : "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        _mobileOpen = false;
+        StateHasChanged();
+    }
+
+    private void ToggleMobile() => _mobileOpen = !_mobileOpen;
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}
+

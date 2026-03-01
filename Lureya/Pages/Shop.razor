@@ -1,0 +1,157 @@
+@page "/shop"
+@page "/shop/{Category}"
+@inject ProductService Products
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>Winkel – Lureya</PageTitle>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="breadcrumb" style="justify-content:center;">
+        <a @onclick='() => Nav.NavigateTo("/")'>Home</a>
+        <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+        <span>@(Category ?? "Winkel")</span>
+    </div>
+    <h1>@(Category == "hijab" ? "Hijabs" : Category == "abaya" ? "Abayas" : "Alle Producten")</h1>
+    <p>@_filtered.Count resultaten</p>
+</div>
+
+<section class="section">
+    <div class="container">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="ftab @(_activeFilter == "Alles" ? "active" : "")" @onclick='() => SetFilter("Alles")'>Alles</button>
+                <button class="ftab @(_activeFilter == "Hijab" ? "active" : "")" @onclick='() => SetFilter("Hijab")'>Hijabs</button>
+                <button class="ftab @(_activeFilter == "Abaya" ? "active" : "")" @onclick='() => SetFilter("Abaya")'>Abayas</button>
+                <button class="ftab @(_activeFilter == "Nieuw" ? "active" : "")" @onclick='() => SetFilter("Nieuw")'>Nieuw</button>
+                <button class="ftab @(_activeFilter == "Sale" ? "active" : "")" @onclick='() => SetFilter("Sale")'>Sale</button>
+            </div>
+            <select class="sort-select" @bind="_sortBy">
+                <option value="featured">Uitgelicht</option>
+                <option value="price-asc">Prijs laag – hoog</option>
+                <option value="price-desc">Prijs hoog – laag</option>
+                <option value="rating">Hoogst beoordeeld</option>
+                <option value="newest">Nieuwste eerst</option>
+            </select>
+        </div>
+
+        <!-- Products Grid -->
+        @if (_filtered.Count == 0)
+        {
+            <div class="empty-cart">
+                <i class="fas fa-search"></i>
+                <h3>Geen producten gevonden</h3>
+                <p>Probeer een andere filter of zoek op naam.</p>
+                <button class="btn-primary" @onclick='() => SetFilter("Alles")'>Alle producten</button>
+            </div>
+        }
+        else
+        {
+            <div class="products-grid">
+                @foreach (var product in SortedProducts)
+                {
+                    <div class="product-card" @onclick='() => Nav.NavigateTo($"/product/{product.Id}")'>
+                        <div class="product-img-wrap">
+                            <div class="product-img-bg" style="background-image:url('@product.ImageUrl')"></div>
+                            @if (!string.IsNullOrEmpty(product.Badge))
+                            {
+                                <div class="product-badge-wrap"><span class="badge @(product.Badge == "Sale" ? "badge-sale" : "badge-new")">@product.Badge</span></div>
+                            }
+                            <div class="product-quickbtns" @onclick:stopPropagation="true">
+                                <button class="qbtn" @onclick='() => Nav.NavigateTo($"/product/{product.Id}")'>
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="qbtn">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <button class="qbtn" @onclick="() => AddQuick(product)">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <p class="product-cat">@product.Category – @product.SubCategory</p>
+                            <h4 class="product-name">@product.Name</h4>
+                            <div class="product-pricing">
+                                <span class="product-price">€@product.Price.ToString("0.00")</span>
+                                @if (product.OldPrice.HasValue)
+                                {
+                                    <span class="product-price-old">€@product.OldPrice.Value.ToString("0.00")</span>
+                                }
+                            </div>
+                            <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var star = i;
+                                    <i class="@(product.Rating >= star ? "fas" : product.Rating >= star - 0.5 ? "fas fa-star-half-alt" : "far") fa-star" style="color:var(--gold);font-size:.7rem;"></i>
+                                }
+                                <span style="font-size:.7rem;color:var(--text-light);margin-left:.2rem;">(@product.ReviewCount)</span>
+                            </div>
+                            <div class="color-dots">
+                                @foreach (var color in product.Colors.Take(5))
+                                {
+                                    <span class="c-dot" style="background:@color"></span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Category { get; set; }
+
+    private List<Product> _filtered = new();
+    private string _activeFilter = "Alles";
+    private string _sortBy = "featured";
+
+    private IEnumerable<Product> SortedProducts => _sortBy switch
+    {
+        "price-asc"  => _filtered.OrderBy(p => p.Price),
+        "price-desc" => _filtered.OrderByDescending(p => p.Price),
+        "rating"     => _filtered.OrderByDescending(p => p.Rating),
+        _            => _filtered.AsEnumerable()
+    };
+
+    protected override void OnParametersSet()
+    {
+        _activeFilter = Category?.ToLower() switch
+        {
+            "hijab"  => "Hijab",
+            "abaya"  => "Abaya",
+            _ => "Alles"
+        };
+        ApplyFilter();
+    }
+
+    private void SetFilter(string filter)
+    {
+        _activeFilter = filter;
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        var all = Products.GetAll();
+        _filtered = _activeFilter switch
+        {
+            "Hijab"  => all.Where(p => p.Category == "Hijab").ToList(),
+            "Abaya"  => all.Where(p => p.Category == "Abaya").ToList(),
+            "Nieuw"  => all.Where(p => p.Badge == "Nieuw").ToList(),
+            "Sale"   => all.Where(p => p.Badge == "Sale").ToList(),
+            _        => all
+        };
+    }
+
+    private void AddQuick(Product p)
+    {
+        Cart.AddToCart(p);
+    }
+}
+
+

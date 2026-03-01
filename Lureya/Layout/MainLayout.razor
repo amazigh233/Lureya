@@ -1,0 +1,87 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
+@inject CartService Cart
+@implements IDisposable
+
+<NavMenu CartCount="@Cart.TotalCount" />
+
+<main style="padding-top: 0;">
+    @Body
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+                    <div class="logo-ring" style="width:38px;height:38px;">L</div>
+                    <span class="brand-name">LUREYA</span>
+                </div>
+                <p>Luxueuze hijabs en abayas voor de moderne vrouw die schoonheid, stijl en bescheidenheid in harmonie brengt.</p>
+                <div class="footer-socials">
+                    <a class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a class="social-icon"><i class="fab fa-tiktok"></i></a>
+                    <a class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                    <a class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div>
+                <div class="footer-heading">Collectie</div>
+                <div class="footer-links">
+                    <span class="footer-link" @onclick='() => Nav.NavigateTo("/shop?cat=Hijab")'>Hijabs</span>
+                    <span class="footer-link" @onclick='() => Nav.NavigateTo("/shop?cat=Abaya")'>Abayas</span>
+                    <span class="footer-link" @onclick='() => Nav.NavigateTo("/shop")'>Nieuw binnen</span>
+                    <span class="footer-link" @onclick='() => Nav.NavigateTo("/shop")'>Sale</span>
+                    <span class="footer-link" @onclick='() => Nav.NavigateTo("/shop")'>Bruidscollectie</span>
+                </div>
+            </div>
+            <div>
+                <div class="footer-heading">Service</div>
+                <div class="footer-links">
+                    <span class="footer-link">Mijn account</span>
+                    <span class="footer-link">Bestellingen</span>
+                    <span class="footer-link">Retourneren</span>
+                    <span class="footer-link">Maatgids</span>
+                    <span class="footer-link">Contact</span>
+                </div>
+            </div>
+            <div>
+                <div class="footer-heading">Info</div>
+                <div class="footer-links">
+                    <span class="footer-link">Over Lureya</span>
+                    <span class="footer-link">Duurzaamheid</span>
+                    <span class="footer-link">Privacy</span>
+                    <span class="footer-link">Algemene voorwaarden</span>
+                    <span class="footer-link">Cookies</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 Lureya. Alle rechten voorbehouden.</p>
+            <div class="pay-badges">
+                <span class="pay-tag">iDEAL</span>
+                <span class="pay-tag">Klarna</span>
+                <span class="pay-tag">Afterpay</span>
+                <span class="pay-tag">Visa</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<button class="scroll-top" id="scrollTop" style="display:none;" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fas fa-chevron-up"></i>
+</button>
+
+<div id="toast" class="toast"></div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Cart.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Cart.OnChange -= StateHasChanged;
+    }
+}
