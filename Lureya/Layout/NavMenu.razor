@@ -1,4 +1,6 @@
 ﻿@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
 
 <nav class="navbar @(_scrolled ? "scrolled" : "")" id="mainNav">
     <!-- Brand -->
@@ -57,12 +59,32 @@
 
     private bool _scrolled = false;
     private bool _mobileOpen = false;
+    private DotNetObjectReference<NavMenu>? _dotNetRef;
 
     private string CurrentPage => Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/') is "" ? "/" : "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');
 
     protected override void OnInitialized()
     {
         Nav.LocationChanged += OnLocationChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("lurecya_initScroll", _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void SetScrolled(bool scrolled)
+    {
+        if (_scrolled != scrolled)
+        {
+            _scrolled = scrolled;
+            StateHasChanged();
+        }
     }
 
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
@@ -76,6 +98,7 @@
     public void Dispose()
     {
         Nav.LocationChanged -= OnLocationChanged;
+        _dotNetRef?.Dispose();
     }
 }
 
